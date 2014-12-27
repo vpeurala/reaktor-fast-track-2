@@ -28,8 +28,22 @@ struct Graph {
 impl Graph {
   fn dijkstra(&self, from: Label, to: Label) -> Vec<Label> {
     let mut visited: HashSet<Label> = HashSet::new();
-    let mut paths: Vec<Route> = Vec::new();
-    Vec::new() 
+    let mut frontier: BinaryHeap<Route> = BinaryHeap::new();
+    visited.insert(from);
+    for edg in self.outgoing(from).iter() {
+      frontier.push(vec![*edg]);
+    }
+    loop {
+      let cheapest_route = match frontier.pop() {
+        None => panic!("No route found!"),
+        Some(p) => p
+      };
+      if (cheapest_route.end_label() == to) {
+        let mut result: Vec<Label> = cheapest_route.iter().map(|edg| edg.0).collect();
+        result.insert(0, from);
+        return result;
+      }
+    }
   }
 
   fn outgoing(&self, from: Label) -> &Vec<Edge> {
@@ -37,8 +51,24 @@ impl Graph {
   }
 }
 
-fn weight(route: Route) -> Weight {
-  route.iter().map(|e| e.1).fold(0, |acc, item| acc + item)
+trait Weighted {
+  fn weight(&self) -> Weight;
+}
+
+impl Weighted for Route {
+  fn weight(&self) -> Weight {
+    self.iter().map(|e| e.1).fold(0, |acc, item| acc + item)
+  }
+}
+
+trait EndLabeled {
+  fn end_label(&self) -> Label;
+}
+
+impl EndLabeled for Route {
+  fn end_label(&self) -> Label {
+    self.iter().last().unwrap().0
+  }
 }
 
 #[cfg(not(test))]
@@ -71,6 +101,11 @@ fn make_graph(v: &Vec<JsonEdge>) -> Graph {
 fn test_outgoing() {
   let graph = graph_from_json_file("graph.json");
   assert_eq!(vec![(4384u16, 15u16)], *graph.outgoing(3138));
-  assert_eq!(vec![(6784u16, 2u16), (5069u16, 14u16), (4049u16, 14u16)], *graph.outgoing(3144))
+  assert_eq!(vec![(6784u16, 2u16), (5069u16, 14u16), (4049u16, 14u16)], *graph.outgoing(3144));
 }
 
+#[test]
+fn test_dijkstra() {
+  let graph = graph_from_json_file("graph.json");
+  assert_eq!(vec![3144u16, 6784u16], graph.dijkstra(3144, 6784));
+}
