@@ -11,7 +11,7 @@ type Label  = u16;
 type Weight = u16;
 type Edge   = (Label, Weight);
 
-#[deriving(Eq, PartialEq)]
+#[deriving(Eq, PartialEq, Show)]
 pub struct Route {
   start_label: Label,
   edges:       Vec<Edge>
@@ -30,7 +30,7 @@ struct Graph {
 }
 
 impl Graph {
-  fn dijkstra(&self, from: Label, to: Label) -> Vec<Label> {
+  fn dijkstra(&self, from: Label, to: Label) -> Route {
     let mut visited: HashSet<Label> = HashSet::new();
     let mut frontier: BinaryHeap<Route> = BinaryHeap::new();
     visited.insert(from);
@@ -43,9 +43,7 @@ impl Graph {
         Some(p) => p
       };
       if cheapest_route.end_label() == to {
-        let mut result: Vec<Label> = cheapest_route.edges.iter().map(|edg| edg.0).collect();
-        result.insert(0, from);
-        return result;
+        return cheapest_route
       } else {
         visited.insert(cheapest_route.end_label());
         match self.outgoing_unvisited(cheapest_route.end_label(), &visited) {
@@ -91,6 +89,14 @@ impl Ord for Route {
 impl PartialOrd for Route {
   fn partial_cmp(&self, other: &Route) -> Option<Ordering> {
     Some(self.cmp(other))
+  }
+}
+
+impl Route {
+  fn label_vec(&self) -> Vec<Label> {
+    let mut edge_labels: Vec<Label> = self.edges.iter().map(|e| e.0).collect();
+    edge_labels.insert(0, self.start_label);
+    edge_labels
   }
 }
 
@@ -140,10 +146,10 @@ fn test_outgoing() {
 #[test]
 fn test_dijkstra() {
   let graph = graph_from_json_file("graph.json");
-  assert_eq!(vec![3144, 6784], graph.dijkstra(3144, 6784));
-  assert_eq!(vec![201, 12, 38, 1410, 2982, 3926, 4702, 1336, 2019, 13894, 17745, 19375, 4821, 5265, 8775], graph.dijkstra(201, 8775));
-  assert_eq!(vec![23, 770, 1315, 2391, 3120, 3545, 8247, 8667, 23877], graph.dijkstra(23, 23877));
-  assert_eq!(vec![0, 6, 5, 16, 100, 777, 4410, 3287, 9102, 49486, 49900], graph.dijkstra(0, 49900));
-  assert_eq!(vec![7896, 21966, 20121, 3545, 422, 2, 48, 189, 297, 5547, 7542, 4361, 2417, 3681, 3693, 38949], graph.dijkstra(7896, 38949));
+  assert_eq!(vec![3144, 6784], graph.dijkstra(3144, 6784).label_vec());
+  assert_eq!(vec![201, 12, 38, 1410, 2982, 3926, 4702, 1336, 2019, 13894, 17745, 19375, 4821, 5265, 8775], graph.dijkstra(201, 8775).label_vec());
+  assert_eq!(vec![23, 770, 1315, 2391, 3120, 3545, 8247, 8667, 23877], graph.dijkstra(23, 23877).label_vec());
+  assert_eq!(vec![0, 6, 5, 16, 100, 777, 4410, 3287, 9102, 49486, 49900], graph.dijkstra(0, 49900).label_vec());
+  assert_eq!(vec![7896, 21966, 20121, 3545, 422, 2, 48, 189, 297, 5547, 7542, 4361, 2417, 3681, 3693, 38949], graph.dijkstra(7896, 38949).label_vec());
 }
 
