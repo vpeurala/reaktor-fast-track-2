@@ -42,6 +42,13 @@ impl Graph {
         let mut result: Vec<Label> = cheapest_route.iter().map(|edg| edg.0).collect();
         result.insert(0, from);
         return result;
+      } else {
+        let frontier_expansion = self.outgoing(cheapest_route.end_label());
+        for &fe in frontier_expansion.iter() {
+          let mut cheapest_route_clone = cheapest_route.clone();
+          cheapest_route_clone.push(fe);
+          frontier.push(cheapest_route_clone);
+        }
       }
     }
   }
@@ -108,4 +115,5 @@ fn test_outgoing() {
 fn test_dijkstra() {
   let graph = graph_from_json_file("graph.json");
   assert_eq!(vec![3144u16, 6784u16], graph.dijkstra(3144, 6784));
+  assert_eq!(vec![3144u16, 6784u16], graph.dijkstra(201, 8775));
 }
