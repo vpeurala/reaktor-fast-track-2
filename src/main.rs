@@ -1,3 +1,4 @@
+// TODO: Documentation of everything
 extern crate collections;
 extern crate serialize;
 
@@ -32,11 +33,13 @@ struct JsonJourney {
 }
 
 #[deriving(Show)]
+// TODO: trait WeightedDirectedGraph
 struct Graph {
   vertices: HashMap<Label, Vec<Edge>>
 }
 
 impl Graph {
+  // TODO: on trait
   fn dijkstra(&self, from: Label, to: Label) -> Route {
     let mut visited: HashSet<Label> = HashSet::new();
     let mut frontier: BinaryHeap<Route> = BinaryHeap::new();
