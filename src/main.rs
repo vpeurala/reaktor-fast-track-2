@@ -10,7 +10,12 @@ use serialize::json;
 type Label  = u16;
 type Weight = u16;
 type Edge   = (Label, Weight);
-type Route  = Vec<Edge>;
+
+#[deriving(Eq, PartialEq)]
+pub struct Route {
+  start_label: Label,
+  edges:       Vec<Edge>
+}
 
 #[deriving(Decodable, Encodable, Show)]
 struct JsonEdge {
@@ -30,7 +35,7 @@ impl Graph {
     let mut frontier: BinaryHeap<Route> = BinaryHeap::new();
     visited.insert(from);
     for edg in self.outgoing_unvisited(from, &visited).unwrap().iter() {
-      frontier.push(vec![*edg]);
+      frontier.push(Route { start_label: from, edges: vec![*edg] });
     }
     loop {
       let cheapest_route = match frontier.pop() {
@@ -38,7 +43,7 @@ impl Graph {
         Some(p) => p
       };
       if cheapest_route.end_label() == to {
-        let mut result: Vec<Label> = cheapest_route.iter().map(|edg| edg.0).collect();
+        let mut result: Vec<Label> = cheapest_route.edges.iter().map(|edg| edg.0).collect();
         result.insert(0, from);
         return result;
       } else {
@@ -46,9 +51,9 @@ impl Graph {
         match self.outgoing_unvisited(cheapest_route.end_label(), &visited) {
           None => (),
           Some (frontier_expansion) => for &fe in frontier_expansion.iter() {
-            let mut cheapest_route_clone = cheapest_route.clone();
+            let mut cheapest_route_clone = cheapest_route.edges.clone();
             cheapest_route_clone.push(fe);
-            frontier.push(cheapest_route_clone);
+            frontier.push(Route { start_label: from, edges: cheapest_route_clone });
           }
         }
       }
@@ -74,14 +79,20 @@ trait Weighted {
 
 impl Weighted for Route {
   fn weight(&self) -> Weight {
-    self.iter().map(|e| e.1).fold(0, |acc, item| acc + item)
+    self.edges.iter().map(|e| e.1).fold(0, |acc, item| acc + item)
   }
 }
 
 impl Ord for Route {
   fn cmp(&self, other: &Route) -> Ordering {
     // Flipped around to get min-heap instead of max-heap.
-    other.weight.cmp(&self.weight())
+    other.weight().cmp(&self.weight())
+  }
+}
+
+impl PartialOrd for Route {
+  fn partial_cmp(&self, other: &Route) -> Option<Ordering> {
+    Some(self.cmp(other))
   }
 }
 
@@ -91,7 +102,7 @@ trait EndLabeled {
 
 impl EndLabeled for Route {
   fn end_label(&self) -> Label {
-    self.iter().last().unwrap().0
+    self.edges.iter().last().unwrap().0
   }
 }
 
