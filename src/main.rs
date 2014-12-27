@@ -29,7 +29,7 @@ impl Graph {
     let mut visited: HashSet<Label> = HashSet::new();
     let mut frontier: BinaryHeap<Route> = BinaryHeap::new();
     visited.insert(from);
-    for edg in self.outgoing(from).unwrap().iter() {
+    for edg in self.outgoing_unvisited(from, &visited).unwrap().iter() {
       frontier.push(vec![*edg]);
     }
     loop {
@@ -42,8 +42,8 @@ impl Graph {
         result.insert(0, from);
         return result;
       } else {
-        self.outgoing(cheapest_route.end_label());
-        match self.outgoing(cheapest_route.end_label()) {
+        visited.insert(cheapest_route.end_label());
+        match self.outgoing_unvisited(cheapest_route.end_label(), &visited) {
           None => (),
           Some (frontier_expansion) => for &fe in frontier_expansion.iter() {
             let mut cheapest_route_clone = cheapest_route.clone();
@@ -55,9 +55,16 @@ impl Graph {
     }
   }
 
-  fn outgoing(&self, from: Label) -> Option<&Vec<Edge>> {
-    print!("outgoing: {}\n", from);
-    self.vertices.get(&from)
+  fn outgoing_unvisited(&self, from: Label, visited: &HashSet<Label>) -> Option<Vec<Edge>> {
+    println!("outgoing: {}", from);
+    println!("visited: {}", visited.len());
+    match self.vertices.get(&from) {
+      None => None,
+      Some(all_outgoing) => {
+        let output: Vec<Edge> = all_outgoing.iter().filter(|e| !visited.contains(&e.0)).map(|e| e.clone()).collect();
+        Some(output)
+      }
+    }
   }
 }
 
@@ -68,6 +75,13 @@ trait Weighted {
 impl Weighted for Route {
   fn weight(&self) -> Weight {
     self.iter().map(|e| e.1).fold(0, |acc, item| acc + item)
+  }
+}
+
+impl Ord for Route {
+  fn cmp(&self, other: &Route) -> Ordering {
+    // Flipped around to get min-heap instead of max-heap.
+    other.weight.cmp(&self.weight())
   }
 }
 
@@ -110,8 +124,8 @@ fn make_graph(v: &Vec<JsonEdge>) -> Graph {
 #[test]
 fn test_outgoing() {
   let graph = graph_from_json_file("graph.json");
-  assert_eq!(vec![(4384u16, 15u16)], *graph.outgoing(3138).unwrap());
-  assert_eq!(vec![(6784u16, 2u16), (5069u16, 14u16), (4049u16, 14u16)], *graph.outgoing(3144).unwrap());
+  assert_eq!(vec![(4384u16, 15u16)], graph.outgoing_unvisited(3138, &HashSet::new()).unwrap());
+  assert_eq!(vec![(6784u16, 2u16), (5069u16, 14u16), (4049u16, 14u16)], graph.outgoing_unvisited(3144, &HashSet::new()).unwrap());
 }
 
 #[test]
