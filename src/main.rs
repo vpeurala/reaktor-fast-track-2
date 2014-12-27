@@ -61,8 +61,6 @@ impl Graph {
   }
 
   fn outgoing_unvisited(&self, from: Label, visited: &HashSet<Label>) -> Option<Vec<Edge>> {
-    println!("outgoing: {}", from);
-    println!("visited: {}", visited.len());
     match self.vertices.get(&from) {
       None => None,
       Some(all_outgoing) => {
@@ -108,7 +106,7 @@ impl EndLabeled for Route {
 
 #[cfg(not(test))]
 fn main() {
-  println!(graph_from_json_file("graph.json"));
+  println!("{}", graph_from_json_file("graph.json"));
 }
 
 fn graph_from_json_file(file_name: &str) -> Graph {
@@ -142,6 +140,6 @@ fn test_outgoing() {
 #[test]
 fn test_dijkstra() {
   let graph = graph_from_json_file("graph.json");
-  assert_eq!(vec![3144u16, 6784u16], graph.dijkstra(3144, 6784));
-  assert_eq!(vec![3144u16, 6784u16], graph.dijkstra(201, 8775));
+  assert_eq!(vec![3144, 6784], graph.dijkstra(3144, 6784));
+  assert_eq!(vec![201, 12, 38, 1410, 2982, 3926, 4702, 1336, 2019, 13894, 17745, 19375, 4821, 5265, 8775], graph.dijkstra(201, 8775));
 }
