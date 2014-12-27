@@ -7,8 +7,8 @@ use std::collections::BinaryHeap;
 use std::io::File;
 use serialize::json;
 
-type Label  = u16;
-type Weight = u16;
+type Label  = uint;
+type Weight = uint;
 type Edge   = (Label, Weight);
 
 #[deriving(Eq, PartialEq, Show)]
