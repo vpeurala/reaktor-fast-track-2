@@ -1,7 +1,9 @@
+extern crate collections;
 extern crate serialize;
 
-use std::collections::hash_map::HashMap;
-use std::collections::hash_set::HashSet;
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::collections::BinaryHeap;
 use std::io::File;
 use std::io::IoError;
 use serialize::json;
@@ -35,14 +37,13 @@ impl Graph {
   }
 }
 
+fn weight(route: Route) -> Weight {
+  route.iter().map(|e| e.1).fold(0, |acc, item| acc + item)
+}
+
+#[cfg(not(test))]
 fn main() {
-  println!("Fast track!");
-  let contents: Result<String, IoError> = File::open(&Path::new("graph_small.json")).read_to_string();
-  println!("Read!");
-  match contents {
-    Ok(s) => cont(&s),
-    Err(e) => println!("error: {}", e),
-  } 
+  println!(graph_from_json_file("graph.json"));
 }
 
 fn graph_from_json_file(file_name: &str) -> Graph {
@@ -53,15 +54,6 @@ fn graph_from_json_file(file_name: &str) -> Graph {
     },
     Err(e) => panic!("File {} could not be read: {}", file_name, e)
   }
-}
-
-fn cont(s: &String) {
-  let decoded: Result<Vec<JsonEdge>, json::DecoderError> = json::decode(s.as_slice());
-  let graph: Graph = match decoded {
-    Ok(v) => make_graph(&v),
-    Err(e) => panic!("decoder error!: {}", e),
-  };
-  println!("graph: {}", graph);
 }
 
 fn make_graph(v: &Vec<JsonEdge>) -> Graph {
