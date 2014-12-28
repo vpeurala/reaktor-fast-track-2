@@ -9,7 +9,8 @@ use graph::Weight;
 use graph::WeightedDirectedGraph;
 
 use std::io::File;
-use serialize::json;
+use serialize::json::decode;
+use serialize::json::encode;
 use serialize::json::Decoder;
 use serialize::json::DecoderError;
 use serialize::Decodable;
@@ -41,13 +42,13 @@ fn main() {
   let g: AdjacencyListBackedGraph = graph_from_json_file("graph.json");
   let journeys_in: Vec<JsonJourney> = journeys_from_json_file("journeys.json");
   let journeys_out: Vec<JsonJourney> = journeys_in.iter().map(|j| JsonJourney { from: j.from, to: j.to, route: Some(g.dijkstra(j.from, j.to).label_vec()) }).collect();
-  println!("{}", json::encode(&journeys_out));
+  println!("{}", encode(&journeys_out));
 }
 
 // TODO: lots of duplication in this and journeys_from_json_file
 fn graph_from_json_file(file_name: &str) -> AdjacencyListBackedGraph {
   match File::open(&Path::new(file_name)).read_to_string() {
-    Ok(s) => match json::decode::<Vec<JsonEdge>>(s.as_slice()) {
+    Ok(s) => match decode::<Vec<JsonEdge>>(s.as_slice()) {
       Ok(v)  => AdjacencyListBackedGraph::from_edges(v),
       Err(e) => panic!("Json decoder error, probably corrupt file: {}", e)
     },
@@ -57,7 +58,7 @@ fn graph_from_json_file(file_name: &str) -> AdjacencyListBackedGraph {
 
 fn journeys_from_json_file(file_name: &str) -> Vec<JsonJourney> {
   match File::open(&Path::new(file_name)).read_to_string() {
-    Ok(s) => match json::decode(s.as_slice()) {
+    Ok(s) => match decode(s.as_slice()) {
       Ok(v)  => v,
       Err(e) => panic!("Json decoder error, probably corrupt file: {}", e)
     },
@@ -67,7 +68,7 @@ fn journeys_from_json_file(file_name: &str) -> Vec<JsonJourney> {
 
 fn read_json_file<T: Decodable<Decoder, DecoderError>>(file_name: &str) -> T {
   match File::open(&Path::new(file_name)).read_to_string() {
-    Ok(s) => match json::decode(s.as_slice()) {
+    Ok(s) => match decode(s.as_slice()) {
       Ok(v)  => v,
       Err(e) => panic!("Json decoder error, probably corrupt file: {}", e)
     },
