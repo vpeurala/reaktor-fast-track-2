@@ -43,7 +43,7 @@ fn main() {
 
 fn graph_from_json_file(file_name: &str) -> AdjacencyListBackedGraph {
   match File::open(&Path::new(file_name)).read_to_string() {
-    Ok(s) => match json::decode(s.as_slice()) {
+    Ok(s) => match json::decode::<Vec<JsonEdge>>(s.as_slice()) {
       Ok(v)  => AdjacencyListBackedGraph::from_edges(v),
       Err(e) => panic!("Json decoder error, probably corrupt file: {}", e)
     },

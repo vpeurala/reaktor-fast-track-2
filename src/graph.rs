@@ -118,6 +118,12 @@ pub trait EdgeSource {
   fn weight(&self) -> Weight;
 }
 
+impl EdgeSource for (Label, Label, Weight) {
+  fn from(&self) -> Label { self.0 }
+  fn to(&self) -> Label { self.1 }
+  fn weight(&self) -> Weight { self.2 }
+}
+
 impl AdjacencyListBackedGraph {
   pub fn from_edges<T:EdgeSource>(v: Vec<T>) -> AdjacencyListBackedGraph {
     let mut vertices: HashMap<Label, Vec<(Label, Weight)>> = HashMap::new();
