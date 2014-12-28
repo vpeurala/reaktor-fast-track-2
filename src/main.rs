@@ -8,7 +8,6 @@ use graph::Weight;
 use graph::WeightedDirectedGraph;
 
 use std::collections::HashMap;
-use std::collections::HashSet;
 use std::io::File;
 use serialize::json;
 
@@ -68,13 +67,6 @@ fn make_graph(v: &Vec<JsonEdge>) -> AdjacencyListBackedGraph {
 }
 
 #[test]
-fn test_outgoing() {
-  let graph = graph_from_json_file("graph.json");
-  assert_eq!(vec![(4384, 15)], graph.outgoing_unvisited(3138, &HashSet::new()).unwrap());
-  assert_eq!(vec![(6784, 2), (5069, 14), (4049, 14)], graph.outgoing_unvisited(3144, &HashSet::new()).unwrap());
-}
-
-#[test]
 fn test_dijkstra() {
   let graph = graph_from_json_file("graph.json");
   assert_eq!(vec![3144, 6784], graph.dijkstra(3144, 6784).label_vec());
@@ -83,4 +75,5 @@ fn test_dijkstra() {
   assert_eq!(vec![0, 6, 5, 16, 100, 777, 4410, 3287, 9102, 49486, 49900], graph.dijkstra(0, 49900).label_vec());
   assert_eq!(vec![7896, 21966, 20121, 3545, 422, 2, 48, 189, 297, 5547, 7542, 4361, 2417, 3681, 3693, 38949], graph.dijkstra(7896, 38949).label_vec());
 }
+
 
