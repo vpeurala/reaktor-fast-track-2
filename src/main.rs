@@ -3,11 +3,11 @@ extern crate collections;
 extern crate serialize;
 
 use graph::AdjacencyListBackedGraph;
+use graph::EdgeSource;
 use graph::Label;
 use graph::Weight;
 use graph::WeightedDirectedGraph;
 
-use std::collections::HashMap;
 use std::io::File;
 use serialize::json;
 
@@ -18,6 +18,12 @@ struct JsonEdge {
   from:   Label,
   to:     Label,
   weight: Weight 
+}
+
+impl EdgeSource for JsonEdge {
+  fn from(&self) -> Label { self.from }
+  fn to(&self) -> Label { self.to }
+  fn weight(&self) -> Weight { self.weight }
 }
 
 #[deriving(Decodable, Encodable, Show)]
@@ -38,7 +44,7 @@ fn main() {
 fn graph_from_json_file(file_name: &str) -> AdjacencyListBackedGraph {
   match File::open(&Path::new(file_name)).read_to_string() {
     Ok(s) => match json::decode(s.as_slice()) {
-      Ok(v)  => make_graph(&v),
+      Ok(v)  => make_graph(v),
       Err(e) => panic!("Json decoder error, probably corrupt file: {}", e)
     },
     Err(e) => panic!("File {} could not be read: {}", file_name, e)
@@ -55,15 +61,8 @@ fn journeys_from_json_file(file_name: &str) -> Vec<JsonJourney> {
   }
 }
 
-fn make_graph(v: &Vec<JsonEdge>) -> AdjacencyListBackedGraph {
-  let mut vertices: HashMap<Label, Vec<(Label, Weight)>> = HashMap::new();
-  for &je in v.iter() {
-    if !vertices.contains_key(&je.from) {
-      vertices.insert(je.from, Vec::new());
-    }
-    vertices.get_mut(&je.from).unwrap().push((je.to, je.weight));
-  }
-  AdjacencyListBackedGraph { vertices: vertices }
+fn make_graph(v: Vec<JsonEdge>) -> AdjacencyListBackedGraph {
+  AdjacencyListBackedGraph::from_edges(v)
 }
 
 #[test]

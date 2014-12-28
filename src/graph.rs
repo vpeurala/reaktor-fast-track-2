@@ -111,3 +111,22 @@ impl WeightedDirectedGraph for AdjacencyListBackedGraph {
     self.vertices.get(&from)
   }
 }
+
+pub trait EdgeSource {
+  fn from(&self) -> Label;
+  fn to(&self) -> Label;
+  fn weight(&self) -> Weight;
+}
+
+impl AdjacencyListBackedGraph {
+  pub fn from_edges<T:EdgeSource>(v: Vec<T>) -> AdjacencyListBackedGraph {
+    let mut vertices: HashMap<Label, Vec<(Label, Weight)>> = HashMap::new();
+    for je in v.iter() {
+      if !vertices.contains_key(&je.from()) {
+        vertices.insert(je.from(), Vec::new());
+      }
+      vertices.get_mut(&je.from()).unwrap().push((je.to(), je.weight()));
+    }
+    AdjacencyListBackedGraph { vertices: vertices }
+  }
+}
