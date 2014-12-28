@@ -1,6 +1,5 @@
 // TODO: Documentation of everything
 extern crate collections;
-extern crate serialize;
 
 use std::collections::HashMap;
 use std::collections::HashSet;

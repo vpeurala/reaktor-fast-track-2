@@ -1,5 +1,4 @@
 // TODO: Documentation of everything
-extern crate collections;
 extern crate serialize;
 
 use graph::AdjacencyListBackedGraph;
