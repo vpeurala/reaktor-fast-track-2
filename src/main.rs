@@ -45,28 +45,15 @@ fn main() {
   println!("{}", encode(&journeys_out));
 }
 
-// TODO: lots of duplication in this and journeys_from_json_file
 fn graph_from_json_file(file_name: &str) -> AdjacencyListBackedGraph {
-  match File::open(&Path::new(file_name)).read_to_string() {
-    Ok(s) => match decode::<Vec<JsonEdge>>(s.as_slice()) {
-      Ok(v)  => AdjacencyListBackedGraph::from_edges(v),
-      Err(e) => panic!("Json decoder error, probably corrupt file: {}", e)
-    },
-    Err(e) => panic!("File {} could not be read: {}", file_name, e)
-  }
+  AdjacencyListBackedGraph::from_edges(decode_json_file::<Vec<JsonEdge>>(file_name))
 }
 
 fn journeys_from_json_file(file_name: &str) -> Vec<JsonJourney> {
-  match File::open(&Path::new(file_name)).read_to_string() {
-    Ok(s) => match decode(s.as_slice()) {
-      Ok(v)  => v,
-      Err(e) => panic!("Json decoder error, probably corrupt file: {}", e)
-    },
-    Err(e) => panic!("File {} could not be read: {}", file_name, e)
-  }
+  decode_json_file(file_name)
 }
 
-fn read_json_file<T: Decodable<Decoder, DecoderError>>(file_name: &str) -> T {
+fn decode_json_file<T: Decodable<Decoder, DecoderError>>(file_name: &str) -> T {
   match File::open(&Path::new(file_name)).read_to_string() {
     Ok(s) => match decode(s.as_slice()) {
       Ok(v)  => v,
