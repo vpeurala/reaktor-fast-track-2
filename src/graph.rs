@@ -16,7 +16,7 @@ pub struct Route {
 }
 
 pub trait WeightedDirectedGraph {
-  fn dijkstra(&self, from: Label, to: Label) -> Route {
+  fn dijkstra(&self, from: Label, to: Label) -> Option<Route> {
     let mut visited: HashSet<Label> = HashSet::new();
     let mut frontier: BinaryHeap<Route> = BinaryHeap::new();
     visited.insert(from);
@@ -25,11 +25,11 @@ pub trait WeightedDirectedGraph {
     }
     loop {
       let cheapest_route = match frontier.pop() {
-        None => panic!("No route found!"),
+        None    => return None,
         Some(p) => p
       };
       if cheapest_route.end_label() == to {
-        return cheapest_route
+        return Some(cheapest_route)
       } else {
         visited.insert(cheapest_route.end_label());
         match self.outgoing_unvisited(cheapest_route.end_label(), &visited) {
@@ -135,3 +135,37 @@ impl AdjacencyListBackedGraph {
     AdjacencyListBackedGraph { vertices: vertices }
   }
 }
+
+// -- Unit tests
+
+#[cfg(test)]
+///
+///                             1
+///                         +--------------------------------+
+///                         v                                |
+/// +---+  1   +---+  1   +---+  1   +---+  4   +---+  1   +---+
+/// | 5 | ---> | 6 | ---> | 3 | ---> | 4 | <--- | 1 | ---> | 2 |
+/// +---+      +---+      +---+      +---+      +---+      +---+
+///                                               ^   1      |
+///                                               +----------+
+///
+fn create_test_graph() -> AdjacencyListBackedGraph {
+  AdjacencyListBackedGraph::from_edges(vec![
+    (1, 2, 1),
+    (2, 3, 1),
+    (3, 4, 1),
+    (2, 1, 1),
+    (1, 4, 4),
+    (5, 6, 1),
+    (6, 3, 1)
+  ])
+}
+
+#[test]
+fn test_basic_cases() {
+  let graph = create_test_graph();
+  assert_eq!(vec![1, 2], graph.dijkstra(1, 2).unwrap().label_vec());
+  assert_eq!(vec![1, 2, 3, 4], graph.dijkstra(1, 4).unwrap().label_vec());
+  assert_eq!(None, graph.dijkstra(1, 5));
+}
+
