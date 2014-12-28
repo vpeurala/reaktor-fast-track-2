@@ -2,23 +2,17 @@
 extern crate collections;
 extern crate serialize;
 
+use graph::Edge;
+use graph::Label;
+use graph::Weight;
 use graph::WeightedDirectedGraph;
+
 use std::collections::HashMap;
 use std::collections::HashSet;
 use std::io::File;
 use serialize::json;
 
 mod graph;
-
-type Label  = uint;
-type Weight = uint;
-type Edge   = (Label, Weight);
-
-#[deriving(Eq, PartialEq, Show)]
-pub struct Route {
-  start_label: Label,
-  edges:       Vec<Edge>
-}
 
 #[deriving(Decodable, Encodable, Show)]
 struct JsonEdge {
