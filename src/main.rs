@@ -15,7 +15,7 @@ use serialize::json::Decoder;
 use serialize::json::DecoderError;
 use serialize::Decodable;
 
-mod graph;
+pub mod graph;
 
 #[deriving(Decodable, Encodable, Show)]
 struct JsonEdge {
@@ -38,6 +38,7 @@ struct JsonJourney {
 }
 
 #[cfg(not(test))]
+// TODO: Command line parsing
 fn main() {
   let g: AdjacencyListBackedGraph = graph_from_json_file("graph.json");
   let journeys_in: Vec<JsonJourney> = journeys_from_json_file("journeys.json");
