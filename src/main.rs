@@ -2,7 +2,7 @@
 extern crate collections;
 extern crate serialize;
 
-use graph::Edge;
+use graph::AdjacencyListBackedGraph;
 use graph::Label;
 use graph::Weight;
 use graph::WeightedDirectedGraph;
@@ -26,17 +26,6 @@ struct JsonJourney {
   from:  Label,
   to:    Label,
   route: Option<Vec<Label>>
-}
-
-#[deriving(Show)]
-struct AdjacencyListBackedGraph {
-  vertices: HashMap<Label, Vec<Edge>>
-}
-
-impl WeightedDirectedGraph for AdjacencyListBackedGraph {
-  fn outgoing(&self, from: Label) -> Option<&Vec<Edge>> {
-    self.vertices.get(&from)
-  }
 }
 
 #[cfg(not(test))]

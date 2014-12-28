@@ -2,6 +2,7 @@
 extern crate collections;
 extern crate serialize;
 
+use std::collections::HashMap;
 use std::collections::HashSet;
 use std::collections::BinaryHeap;
 
@@ -95,5 +96,17 @@ trait EndLabeled {
 impl EndLabeled for Route {
   fn end_label(&self) -> Label {
     self.edges.iter().last().unwrap().0
+  }
+}
+
+#[deriving(Show)]
+pub struct AdjacencyListBackedGraph {
+  // TODO: Should be private
+  pub vertices: HashMap<Label, Vec<Edge>>
+}
+
+impl WeightedDirectedGraph for AdjacencyListBackedGraph {
+  fn outgoing(&self, from: Label) -> Option<&Vec<Edge>> {
+    self.vertices.get(&from)
   }
 }
