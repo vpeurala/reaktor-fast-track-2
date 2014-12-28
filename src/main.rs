@@ -29,11 +29,11 @@ struct JsonJourney {
 }
 
 #[deriving(Show)]
-struct Graph {
+struct AdjacencyListBackedGraph {
   vertices: HashMap<Label, Vec<Edge>>
 }
 
-impl WeightedDirectedGraph for Graph {
+impl WeightedDirectedGraph for AdjacencyListBackedGraph {
   fn outgoing(&self, from: Label) -> Option<&Vec<Edge>> {
     self.vertices.get(&from)
   }
@@ -41,13 +41,13 @@ impl WeightedDirectedGraph for Graph {
 
 #[cfg(not(test))]
 fn main() {
-  let g: Graph = graph_from_json_file("graph.json");
+  let g: AdjacencyListBackedGraph = graph_from_json_file("graph.json");
   let journeys_in: Vec<JsonJourney> = journeys_from_json_file("journeys.json");
   let journeys_out: Vec<JsonJourney> = journeys_in.iter().map(|j| JsonJourney { from: j.from, to: j.to, route: Some(g.dijkstra(j.from, j.to).label_vec()) }).collect();
   println!("{}", json::encode(&journeys_out));
 }
 
-fn graph_from_json_file(file_name: &str) -> Graph {
+fn graph_from_json_file(file_name: &str) -> AdjacencyListBackedGraph {
   match File::open(&Path::new(file_name)).read_to_string() {
     Ok(s) => match json::decode(s.as_slice()) {
       Ok(v)  => make_graph(&v),
@@ -67,7 +67,7 @@ fn journeys_from_json_file(file_name: &str) -> Vec<JsonJourney> {
   }
 }
 
-fn make_graph(v: &Vec<JsonEdge>) -> Graph {
+fn make_graph(v: &Vec<JsonEdge>) -> AdjacencyListBackedGraph {
   let mut vertices: HashMap<Label, Vec<(Label, Weight)>> = HashMap::new();
   for &je in v.iter() {
     if !vertices.contains_key(&je.from) {
@@ -75,7 +75,7 @@ fn make_graph(v: &Vec<JsonEdge>) -> Graph {
     }
     vertices.get_mut(&je.from).unwrap().push((je.to, je.weight));
   }
-  Graph { vertices: vertices }
+  AdjacencyListBackedGraph { vertices: vertices }
 }
 
 #[test]
