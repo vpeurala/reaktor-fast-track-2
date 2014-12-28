@@ -20,7 +20,7 @@ pub trait WeightedDirectedGraph {
     let mut visited: HashSet<Label> = HashSet::new();
     let mut frontier: BinaryHeap<Route> = BinaryHeap::new();
     visited.insert(from);
-    for edg in self.outgoing_unvisited(from, &visited).unwrap().iter() {
+    for edg in self.outgoing_unvisited(from, &visited).unwrap_or_default().iter() {
       frontier.push(Route { start_label: from, edges: vec![*edg] });
     }
     loop {
@@ -101,8 +101,7 @@ impl EndLabeled for Route {
 
 #[deriving(Show)]
 pub struct AdjacencyListBackedGraph {
-  // TODO: Should be private
-  pub vertices: HashMap<Label, Vec<Edge>>
+  vertices: HashMap<Label, Vec<Edge>>
 }
 
 impl WeightedDirectedGraph for AdjacencyListBackedGraph {
@@ -167,5 +166,8 @@ fn test_basic_cases() {
   assert_eq!(vec![1, 2], graph.dijkstra(1, 2).unwrap().label_vec());
   assert_eq!(vec![1, 2, 3, 4], graph.dijkstra(1, 4).unwrap().label_vec());
   assert_eq!(None, graph.dijkstra(1, 5));
+  assert_eq!(None, graph.dijkstra(8, 1));
+  assert_eq!(None, graph.dijkstra(8, 9));
+  assert_eq!(None, graph.dijkstra(1, 9));
 }
 
