@@ -61,10 +61,15 @@ trait Weighted {
   fn weight(&self) -> Weight;
 }
 
-// TODO: impl Weighted for Edge
 impl Weighted for Route {
   fn weight(&self) -> Weight {
-    self.edges.iter().map(|e| e.1).fold(0, |acc, item| acc + item)
+    self.edges.iter().map(|e| e.weight()).fold(0, |sum, weight| sum + weight)
+  }
+}
+
+impl Weighted for Edge {
+  fn weight(&self) -> Weight {
+    self.1
   }
 }
 
