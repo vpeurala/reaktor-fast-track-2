@@ -92,15 +92,9 @@ impl Route {
     edge_labels.insert(0, self.start_label);
     edge_labels
   }
-}
 
-trait EndLabeled {
-  fn end_label(&self) -> Label;
-}
-
-impl EndLabeled for Route {
   fn end_label(&self) -> Label {
-    self.edges.iter().last().unwrap().0
+    self.edges.iter().last().unwrap_or(&(self.start_label, 0)).0
   }
 }
 
