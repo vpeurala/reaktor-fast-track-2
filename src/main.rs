@@ -1,4 +1,3 @@
-// TODO: Documentation of everything
 extern crate serialize;
 
 use graph::AdjacencyListBackedGraph;

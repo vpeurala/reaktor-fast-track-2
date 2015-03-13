@@ -1,4 +1,3 @@
-// TODO: Documentation of everything
 extern crate collections;
 
 use std::collections::HashMap;
