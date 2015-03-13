@@ -37,7 +37,6 @@ struct JsonJourney {
 }
 
 #[cfg(not(test))]
-// TODO: Command line parsing
 fn main() {
   let g: AdjacencyListBackedGraph = graph_from_json_file("graph.json");
   let journeys_in: Vec<JsonJourney> = journeys_from_json_file("journeys.json");
