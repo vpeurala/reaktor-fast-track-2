@@ -5,5 +5,5 @@ version = "0.0.1"
 authors = [ "Ville Peurala <ville.peurala@gmail.com>" ]
 
 [[bin]]
-name = "fast_track"
+name = "reaktor_fast_track_2"
 
