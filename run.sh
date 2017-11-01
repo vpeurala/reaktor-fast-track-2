@@ -1,4 +1,4 @@
 #!/bin/sh
-cargo clean > /dev/null
-cargo build > /dev/null
+cargo clean
+cargo build
 target/reaktor_fast_track_2 | jsonpp
