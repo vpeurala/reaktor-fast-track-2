@@ -4,7 +4,11 @@ extern crate serde_derive;
 extern crate serde_json;
 
 use std::fs::File;
+use std::io::BufReader;
+use std::io::Error;
+use std::io::Read;
 use std::path::Path;
+use std::result::Result;
 
 use serde::Deserialize;
 use serde_json::de::from_str;
@@ -43,7 +47,7 @@ fn main() {
     let g: AdjacencyListBackedGraph = graph_from_json_file("graph.json");
     let journeys_in: Vec<JsonJourney> = journeys_from_json_file("journeys.json");
     let journeys_out: Vec<JsonJourney> = journeys_in.iter().map(|j| JsonJourney { from: j.from, to: j.to, route: g.dijkstra(j.from, j.to).and_then(|g| Some(g.label_vec())) }).collect();
-    println!("{}", to_string_pretty(&journeys_out));
+    //println!("{}", to_string_pretty(&journeys_out));
 }
 
 fn graph_from_json_file(file_name: &str) -> AdjacencyListBackedGraph {
@@ -55,6 +59,7 @@ fn journeys_from_json_file(file_name: &str) -> Vec<JsonJourney> {
     decode_json_file(file_name)
 }
 
+/*
 fn decode_json_file<T: Deserialize<Decoder, DecoderError>>(file_name: &str) -> T {
     match File::open(&Path::new(file_name)).read_to_string() {
         Ok(s) => match from_str(s.as_slice()) {
@@ -63,6 +68,20 @@ fn decode_json_file<T: Deserialize<Decoder, DecoderError>>(file_name: &str) -> T
         },
         Err(e) => panic!("File {} could not be read: {}", file_name, e)
     }
+}
+*/
+
+fn decode_json_file<T>(file_name: &str) -> T {
+    unimplemented!()
+}
+
+fn read_file_to_string(file_name: &str) -> String {
+    let file_open_result: Result<File, Error> = File::open(&Path::new(file_name));
+    let file: File = file_open_result.unwrap();
+    let mut buf_reader: BufReader<File> = BufReader::new(file);
+    let mut contents: String = String::new();
+    let file_read_result: Result<usize, Error> = buf_reader.read_to_string(&mut contents);
+    contents
 }
 
 #[test]
