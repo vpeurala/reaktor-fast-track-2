@@ -51,7 +51,7 @@ fn main() {
 }
 
 fn graph_from_json_file(file_name: &str) -> AdjacencyListBackedGraph {
-    AdjacencyListBackedGraph::from_edges(decode_json_file::<Vec<JsonEdge>>(file_name))
+    AdjacencyListBackedGraph::from_edges(decode_json_file(file_name))
 }
 
 #[cfg(not(test))]
@@ -59,20 +59,9 @@ fn journeys_from_json_file(file_name: &str) -> Vec<JsonJourney> {
     decode_json_file(file_name)
 }
 
-/*
-fn decode_json_file<T: Deserialize<Decoder, DecoderError>>(file_name: &str) -> T {
-    match File::open(&Path::new(file_name)).read_to_string() {
-        Ok(s) => match from_str(s.as_slice()) {
-            Ok(v) => v,
-            Err(e) => panic!("Json decoder error, probably corrupt file: {}", e)
-        },
-        Err(e) => panic!("File {} could not be read: {}", file_name, e)
-    }
-}
-*/
-
-fn decode_json_file<T>(file_name: &str) -> T {
-    unimplemented!()
+fn decode_json_file(file_name: &str) -> Vec<JsonJourney> {
+    let json_string: String = read_file_to_string(file_name);
+    from_str(&json_string).unwrap()
 }
 
 fn read_file_to_string(file_name: &str) -> String {
