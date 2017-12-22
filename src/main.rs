@@ -3,10 +3,12 @@ extern crate serde;
 extern crate serde_derive;
 extern crate serde_json;
 
+use std::borrow::Borrow;
 use std::fs::File;
 use std::io::BufReader;
 use std::io::Error;
 use std::io::Read;
+use std::ops::Deref;
 use std::path::Path;
 use std::result::Result;
 
@@ -26,7 +28,7 @@ pub mod graph;
 struct JsonEdge {
     from: Label,
     to: Label,
-    weight: Weight
+    weight: Weight,
 }
 
 impl EdgeSource for JsonEdge {
@@ -39,7 +41,7 @@ impl EdgeSource for JsonEdge {
 struct JsonJourney {
     from: Label,
     to: Label,
-    route: Option<Vec<Label>>
+    route: Option<Vec<Label>>,
 }
 
 #[cfg(not(test))]
@@ -51,7 +53,7 @@ fn main() {
 }
 
 fn graph_from_json_file(file_name: &str) -> AdjacencyListBackedGraph {
-    AdjacencyListBackedGraph::from_edges(decode_json_file(file_name))
+    AdjacencyListBackedGraph::from_edges(decode_json_file::<JsonEdge>(file_name))
 }
 
 #[cfg(not(test))]
@@ -59,9 +61,12 @@ fn journeys_from_json_file(file_name: &str) -> Vec<JsonJourney> {
     decode_json_file(file_name)
 }
 
-fn decode_json_file(file_name: &str) -> Vec<JsonJourney> {
-    let json_string: String = read_file_to_string(file_name);
-    from_str(&json_string).unwrap()
+fn decode_json_file<'a, T: Deserialize<'a>>(file_name: &str) -> Vec<T> {
+    let json_string: &str = &read_file_to_string(file_name);
+    // TODO Remove .
+    //let json_string_ref: &'a str = &("[{\"from\": 1, \"to\": 2, \"weight\": 3}]");
+    let json_string_ref: &'a str = &json_string.as_ref();
+    from_str::<'a>(json_string_ref).unwrap()
 }
 
 fn read_file_to_string(file_name: &str) -> String {
@@ -82,5 +87,3 @@ fn test_dijkstra() {
     assert_eq!(vec![0, 6, 5, 16, 100, 777, 4410, 3287, 9102, 49486, 49900], graph.dijkstra(0, 49900).unwrap().label_vec());
     assert_eq!(vec![7896, 21966, 20121, 3545, 422, 2, 48, 189, 297, 5547, 7542, 4361, 2417, 3681, 3693, 38949], graph.dijkstra(7896, 38949).unwrap().label_vec());
 }
-
-

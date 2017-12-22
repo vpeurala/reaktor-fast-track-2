@@ -11,4 +11,3 @@ serde_test = "1.0.24"
 
 [[bin]]
 name = "reaktor_fast_track_2"
-
