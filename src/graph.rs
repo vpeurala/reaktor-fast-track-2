@@ -10,7 +10,7 @@ pub type Edge = (Label, Weight);
 #[derive(Eq, PartialEq, Debug)]
 pub struct Route {
     start_label: Label,
-    edges: Vec<Edge>
+    edges: Vec<Edge>,
 }
 
 pub trait WeightedDirectedGraph {
