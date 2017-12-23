@@ -75,7 +75,7 @@ fn decode_json<T: Deserialize<'static>>(json_str: &'static str) -> Vec<T> {
 #[test]
 fn test_dijkstra() {
     let graph_json: &'static str = include_str!("graph.json");
-    let graph = graph_from_json(graph_json);
+    let graph: AdjacencyListBackedGraph = graph_from_json(graph_json);
     assert_eq!(vec![3144, 6784], graph.dijkstra(3144, 6784).unwrap().label_vec());
     assert_eq!(vec![201, 12, 38, 1410, 2982, 3926, 4702, 1336, 2019, 13894, 17745, 19375, 4821, 5265, 8775], graph.dijkstra(201, 8775).unwrap().label_vec());
     assert_eq!(vec![23, 770, 1315, 2391, 3120, 3545, 8247, 8667, 23877], graph.dijkstra(23, 23877).unwrap().label_vec());
