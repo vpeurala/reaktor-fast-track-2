@@ -5,16 +5,25 @@ extern crate serde_json;
 
 mod graph;
 
-use serde::Deserialize;
-use serde_json::de::from_str;
-#[cfg(not(test))]
-use serde_json::ser::to_string_pretty;
-
 use graph::AdjacencyListBackedGraph;
 use graph::EdgeSource;
 use graph::Label;
 use graph::Weight;
 use graph::WeightedDirectedGraph;
+
+use serde::Deserialize;
+use serde_json::de::from_str;
+#[cfg(not(test))]
+use serde_json::ser::to_string_pretty;
+
+#[cfg(not(test))]
+use std::io::Stdout;
+#[cfg(not(test))]
+use std::io::StdoutLock;
+#[cfg(not(test))]
+use std::io::Write;
+#[cfg(not(test))]
+use std::io::stdout;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct JsonEdge {
@@ -56,7 +65,12 @@ fn main() {
                         }
                 }).
         collect();
-    println!("{:?}", to_string_pretty(&journeys_out));
+    let journeys_out_pretty: String = to_string_pretty(&journeys_out).unwrap();
+    let stdout: Stdout = stdout();
+    let mut stdout_lock: StdoutLock = stdout.lock();
+    let _ = stdout_lock.write_all(&journeys_out_pretty.into_bytes());
+    let _ = stdout_lock.write(b"\n");
+    let _ = stdout_lock.flush();
 }
 
 fn graph_from_json(json_str: &'static str) -> AdjacencyListBackedGraph {
