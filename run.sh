@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env bash
 cargo clean
-cargo build
-target/reaktor_fast_track_2 | jsonpp
+cargo build --release
+time ./target/release/reaktor_fast_track_2
+
